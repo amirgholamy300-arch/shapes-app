@@ -2,127 +2,343 @@
 <html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>شکل‌های هندسی</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#1a5fb4">
+  <meta name="theme-color" content="#06323d">
   <link rel="icon" type="image/png" href="icon-192.png">
   <link rel="apple-touch-icon" href="icon-192.png">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <style>
+    :root {
+      --petrol-950: #031a20;
+      --petrol-900: #052b34;
+      --petrol-700: #0a4a57;
+      --petrol-500: #0e7585;
+      --foam: #e8fbff;
+      --amber: #ffb830;
+      --glass: rgba(255, 255, 255, 0.10);
+      --glass-strong: rgba(255, 255, 255, 0.18);
+      --glass-line: rgba(255, 255, 255, 0.26);
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html, body { margin: 0; min-height: 100%; }
+
     body {
-      font-family: sans-serif;
+      font-family: "Vazirmatn", "IRANSans", system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif;
+      color: var(--foam);
       text-align: center;
-      background-color: #eaf4ff;
-      padding: 15px;
+      background: linear-gradient(165deg, var(--petrol-950) 0%, var(--petrol-900) 40%, #0b5f6e 100%) fixed;
+      padding: 18px 14px calc(120px + env(safe-area-inset-bottom));
+      touch-action: pan-y;
+      overflow-x: hidden;
+    }
+
+    /* نورهای پس‌زمینه که شیشه آن‌ها را شکست می‌دهد */
+    .glow {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.55;
+      pointer-events: none;
+      z-index: 0;
+      animation: drift 18s ease-in-out infinite alternate;
+    }
+    .glow.a { width: 260px; height: 260px; background: #14b8c4; top: -60px; right: -80px; }
+    .glow.b { width: 220px; height: 220px; background: #ff9f1c; bottom: 120px; left: -90px; opacity: 0.30; animation-delay: -6s; }
+    .glow.c { width: 200px; height: 200px; background: #2f7bff; top: 45%; right: -70px; opacity: 0.30; animation-delay: -11s; }
+    @keyframes drift {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(-24px, 30px) scale(1.12); }
+    }
+
+    header, main, nav { position: relative; z-index: 1; }
+
+    /* ---------- عنوان ---------- */
+    header { margin: 6px auto 18px; max-width: 460px; }
+    h1 {
       margin: 0;
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: 0;
+      color: #fff;
+      text-shadow: 0 2px 18px rgba(20, 184, 196, 0.55);
     }
-    h1 { color: #1a5fb4; }
-    .tab {
-      font-size: 16px;
-      padding: 10px 14px;
-      margin: 4px;
-      border: none;
-      border-radius: 15px;
-      background-color: #ff9f1c;
-      color: white;
+    .sub { margin-top: 4px; font-size: 14px; color: rgba(232, 251, 255, 0.72); }
+
+    main { max-width: 460px; margin: 0 auto; min-height: 60vh; }
+
+    /* ---------- شیشه ---------- */
+    .glass {
+      background: linear-gradient(145deg, rgba(255,255,255,0.20), rgba(255,255,255,0.06));
+      border: 1px solid var(--glass-line);
+      border-radius: 24px;
+      -webkit-backdrop-filter: blur(22px) saturate(170%);
+      backdrop-filter: blur(22px) saturate(170%);
+      box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.45),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.08);
     }
-    .tab.active { background-color: #d96b00; }
+
+    /* ---------- انتقال صفحه‌ها ---------- */
+    #stage.from-left  { animation: fromLeft 0.42s cubic-bezier(.22,.9,.3,1); }
+    #stage.from-right { animation: fromRight 0.42s cubic-bezier(.22,.9,.3,1); }
+    @keyframes fromLeft  { from { transform: translateX(-60px); opacity: 0; } to { transform: none; opacity: 1; } }
+    @keyframes fromRight { from { transform: translateX(60px);  opacity: 0; } to { transform: none; opacity: 1; } }
+
+    /* ---------- کارت شکل‌های دوبعدی ---------- */
     .shapes {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 15px;
-      margin-top: 20px;
+      gap: 14px;
     }
     .card {
-      background: white;
-      border-radius: 15px;
-      padding: 10px;
-      width: 110px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      width: calc(50% - 7px);
+      padding: 16px 10px 12px;
+      border-radius: 24px;
+      font-size: 17px;
+      font-weight: 700;
+      border: 1px solid var(--glass-line);
+      background: linear-gradient(150deg, rgba(var(--rgb), 0.38), rgba(255,255,255,0.07));
+      -webkit-backdrop-filter: blur(18px) saturate(160%);
+      backdrop-filter: blur(18px) saturate(160%);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.26), inset 0 1px 0 rgba(255,255,255,0.45);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
     }
+    .card svg { filter: drop-shadow(0 6px 10px rgba(0,0,0,0.35)); }
     .card:active { transform: scale(0.95); }
-    #info {
-      background: white;
-      border-radius: 15px;
-      margin-top: 25px;
-      padding: 20px;
-      font-size: 20px;
-      line-height: 2;
-      display: none;
+    .card.selected {
+      border-color: rgba(255,255,255,0.8);
+      box-shadow: 0 0 0 3px rgba(var(--rgb), 0.55), 0 12px 28px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.55);
     }
+
+    .hint { width: 100%; font-size: 15px; color: rgba(232,251,255,0.75); margin: 2px 0 2px; }
+
+    /* ---------- جدول اطلاعات ---------- */
+    #info { display: none; margin-top: 20px; }
+    .info-card {
+      overflow: hidden;
+      animation: pop 0.34s cubic-bezier(.2,1.2,.4,1);
+    }
+    @keyframes pop { from { transform: scale(0.94); opacity: 0; } to { transform: none; opacity: 1; } }
+
+    .info-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      background: linear-gradient(120deg, rgba(var(--rgb), 0.85), rgba(var(--rgb), 0.35));
+      border-bottom: 1px solid var(--glass-line);
+    }
+    .info-head svg { width: 46px; height: 46px; flex: none; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35)); }
+    .info-head h3 { margin: 0; font-size: 22px; font-weight: 800; color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,0.35); }
+
+    table { width: 100%; border-collapse: collapse; font-size: 17px; }
+    td, th { padding: 12px 14px; text-align: right; }
+    th {
+      width: 46%;
+      font-weight: 700;
+      white-space: nowrap;
+      border-inline-start: 5px solid rgb(var(--rgb));
+      background: rgba(var(--rgb), 0.28);
+    }
+    td { font-weight: 600; }
+    tr:nth-child(odd)  td { background: rgba(255,255,255,0.06); }
+    tr:nth-child(even) td { background: rgba(255,255,255,0.14); }
+    tr + tr th, tr + tr td { border-top: 1px solid rgba(255,255,255,0.10); }
+    tr.example th { background: rgba(255, 184, 48, 0.32); border-inline-start-color: var(--amber); }
+    .ico { display: inline-block; width: 1.5em; text-align: center; }
+
+    /* ---------- پنل‌ها ---------- */
     .panel {
-      background: white;
-      border-radius: 15px;
-      padding: 20px;
       width: 100%;
-      max-width: 400px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      padding: 20px;
+      margin: 0 auto;
     }
-    .opt {
-      display: block;
-      width: 80%;
-      margin: 10px auto;
-      padding: 12px;
-      font-size: 20px;
-      border: none;
-      border-radius: 12px;
-      background-color: #457b9d;
-      color: white;
-    }
-    .action {
-      font-size: 18px;
-      padding: 10px 20px;
-      margin: 8px;
-      border: none;
-      border-radius: 12px;
-      background-color: #2a9d8f;
-      color: white;
-    }
-    .chip {
-      font-size: 16px;
-      padding: 8px 12px;
-      margin: 4px;
-      border: none;
-      border-radius: 12px;
-      background-color: #a8c5dd;
-      color: #12344d;
-    }
-    .chip.active {
-      background-color: #1a5fb4;
-      color: white;
-    }
-    .msg { font-size: 20px; min-height: 30px; margin: 10px 0; }
-    .photo {
-      max-width: 100%;
-      border-radius: 12px;
-      margin-top: 10px;
-      display: none;
-    }
+    .panel h2 { margin: 6px 0 14px; font-size: 22px; font-weight: 800; }
+
     .view {
       width: 100%;
       max-width: 300px;
       height: auto;
-      background: #f4f9ff;
-      border-radius: 15px;
+      background: radial-gradient(circle at 50% 40%, rgba(255,255,255,0.16), rgba(255,255,255,0.03) 70%);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 22px;
       touch-action: none;
+    }
+
+    .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 10px; }
+    .chip {
+      font: inherit;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 9px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--glass-line);
+      color: var(--foam);
+      background: var(--glass);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      transition: background 0.2s, color 0.2s, transform 0.15s;
+    }
+    .chip:active { transform: scale(0.94); }
+    .chip.active {
+      background: var(--amber);
+      border-color: var(--amber);
+      color: #3a2400;
+      box-shadow: 0 4px 14px rgba(255, 184, 48, 0.45);
+    }
+
+    .opt, .action {
+      font: inherit;
+      font-weight: 700;
+      color: #fff;
+      border: 1px solid var(--glass-line);
+      transition: transform 0.15s, background 0.2s;
+    }
+    .opt {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 14px;
+      font-size: 19px;
+      border-radius: 18px;
+      background: linear-gradient(145deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
+    }
+    .opt:active, .action:active { transform: scale(0.96); }
+    .opt.right { background: linear-gradient(145deg, #1fbf8f, #0f8a68); border-color: rgba(255,255,255,0.6); }
+    .opt.wrong { background: linear-gradient(145deg, #ef5b66, #b92a38); border-color: rgba(255,255,255,0.6); }
+
+    .action {
+      font-size: 17px;
+      padding: 11px 22px;
+      margin: 8px 4px;
+      border-radius: 16px;
+      background: linear-gradient(145deg, #14b8c4, #0b7f8d);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.45);
+    }
+    .action:disabled { opacity: 0.55; }
+    .action.ghost { background: var(--glass); }
+    .action.cam { display: inline-block; background: linear-gradient(145deg, #ffb830, #e58a00); color: #3a2400; border-color: rgba(255,255,255,0.5); }
+
+    .msg { font-size: 19px; font-weight: 700; min-height: 30px; margin: 10px 0; }
+    .score { font-size: 16px; color: rgba(232,251,255,0.8); }
+    .photo { max-width: 100%; border-radius: 16px; margin-top: 10px; display: none; border: 1px solid var(--glass-line); }
+    .q-svg { filter: drop-shadow(0 8px 14px rgba(0,0,0,0.4)); }
+
+    /* ---------- نوار پایین به سبک دوربین آیفون ---------- */
+    #dock {
+      position: fixed;
+      z-index: 10;
+      left: 0; right: 0;
+      bottom: calc(14px + env(safe-area-inset-bottom));
+      display: flex;
+      justify-content: center;
+      padding: 0 14px;
+      pointer-events: none;
+    }
+    #dockInner {
+      pointer-events: auto;
+      position: relative;
+      display: flex;
+      width: 100%;
+      max-width: 430px;
+      padding: 6px;
+      border-radius: 999px;
+      touch-action: none;
+      background: linear-gradient(145deg, rgba(255,255,255,0.22), rgba(255,255,255,0.07));
+      border: 1px solid var(--glass-line);
+      -webkit-backdrop-filter: blur(26px) saturate(190%);
+      backdrop-filter: blur(26px) saturate(190%);
+      box-shadow:
+        0 14px 36px rgba(0,0,0,0.42),
+        inset 0 1px 0 rgba(255,255,255,0.55),
+        inset 0 -1px 0 rgba(255,255,255,0.10);
+    }
+    #lens {
+      position: absolute;
+      top: 6px; bottom: 6px; left: 0;
+      width: 25%;
+      border-radius: 999px;
+      background: linear-gradient(160deg, rgba(255,255,255,0.46), rgba(255,255,255,0.14));
+      border: 1px solid rgba(255,255,255,0.65);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.8);
+      transition: transform 0.38s cubic-bezier(.3,1.25,.4,1), width 0.38s cubic-bezier(.3,1.25,.4,1);
+      pointer-events: none;
+    }
+    .tab {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 8px 4px 7px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      color: rgba(232,251,255,0.7);
+      background: none;
+      border: none;
+      border-radius: 999px;
+      transition: color 0.25s;
+    }
+    .tab svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .tab.active { color: #fff; }
+    .tab.active svg { stroke: var(--amber); }
+
+    button { cursor: pointer; }
+    button:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .glow, #stage, .info-card { animation: none !important; }
+      #lens { transition: none; }
     }
   </style>
 </head>
 <body>
-  <h1>شکل‌های هندسی</h1>
+  <div class="glow a"></div>
+  <div class="glow b"></div>
+  <div class="glow c"></div>
 
-  <div>
-    <button class="tab" id="btn2d">دوبعدی</button>
-    <button class="tab" id="btn3d">سه‌بعدی</button>
-    <button class="tab" id="btnQuiz">آزمون</button>
-    <button class="tab" id="btnChallenge">چالش</button>
-  </div>
+  <header>
+    <h1>شکل‌های هندسی</h1>
+    <div class="sub">ببین، بچرخان و یاد بگیر</div>
+  </header>
 
-  <div class="shapes" id="shapes"></div>
-  <div id="info"></div>
+  <main id="stage">
+    <div class="shapes" id="shapes"></div>
+    <div id="info"></div>
+  </main>
+
+  <nav id="dock" aria-label="بخش‌های برنامه">
+    <div id="dockInner">
+      <div id="lens"></div>
+      <button class="tab" id="btn2d">
+        <svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="9" height="9" rx="1.5"/><circle cx="16.5" cy="16.5" r="4.5"/></svg>
+        <span>دوبعدی</span>
+      </button>
+      <button class="tab" id="btn3d">
+        <svg viewBox="0 0 24 24"><path d="M12 2.8 20 7.4v9.2l-8 4.6-8-4.6V7.4z"/><path d="M4 7.4l8 4.6 8-4.6M12 12v9.2"/></svg>
+        <span>سه‌بعدی</span>
+      </button>
+      <button class="tab" id="btnQuiz">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.3a2.6 2.6 0 1 1 3.6 2.4c-.7.4-1.1.9-1.1 1.7"/><circle cx="12" cy="16.8" r=".6"/></svg>
+        <span>آزمون</span>
+      </button>
+      <button class="tab" id="btnChallenge">
+        <svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>
+        <span>چالش</span>
+      </button>
+    </div>
+  </nav>
 
   <script>
     // ================= ساخت شکل‌های سه‌بعدی (مش) =================
@@ -257,24 +473,28 @@
     const shapes2d = [
       {
         name: "دایره",
+        color: "#e63946",
         svg: '<circle cx="50" cy="50" r="40" fill="#e63946"/>',
         details: ["تعداد ضلع: ۰", "تعداد گوشه: ۰"],
         example: "چرخ ماشین، ساعت دیواری"
       },
       {
         name: "مربع",
+        color: "#2a9d8f",
         svg: '<rect x="10" y="10" width="80" height="80" fill="#2a9d8f"/>',
         details: ["تعداد ضلع: ۴ (مساوی)", "تعداد گوشه: ۴"],
         example: "کاشی، پنجره"
       },
       {
         name: "مستطیل",
+        color: "#4f8fc0",
         svg: '<rect x="5" y="25" width="90" height="50" fill="#457b9d"/>',
         details: ["تعداد ضلع: ۴ (دو‌به‌دو مساوی)", "تعداد گوشه: ۴"],
         example: "در، موبایل، کتاب"
       },
       {
         name: "مثلث",
+        color: "#f4a261",
         svg: '<polygon points="50,10 90,90 10,90" fill="#f4a261"/>',
         details: ["تعداد ضلع: ۳", "تعداد گوشه: ۳"],
         example: "تابلوی خطر، تکه‌ی پیتزا"
@@ -285,6 +505,7 @@
     const shapes3d = [
       {
         name: "مکعب",
+        color: "#2a9d8f",
         build: makeCube,
         svg:
           '<rect x="15" y="35" width="50" height="50" fill="#2a9d8f"/>' +
@@ -295,6 +516,7 @@
       },
       {
         name: "کره",
+        color: "#e63946",
         build: makeSphere,
         svg:
           '<defs><radialGradient id="g1" cx="35%" cy="35%" r="70%">' +
@@ -307,6 +529,7 @@
       },
       {
         name: "استوانه",
+        color: "#4f8fc0",
         build: makeCylinder,
         svg:
           '<ellipse cx="50" cy="80" rx="30" ry="10" fill="#457b9d"/>' +
@@ -317,6 +540,7 @@
       },
       {
         name: "مخروط",
+        color: "#f4a261",
         build: makeCone,
         svg:
           '<ellipse cx="50" cy="80" rx="30" ry="10" fill="#d9822b"/>' +
@@ -326,6 +550,7 @@
       },
       {
         name: "هرم",
+        color: "#e9c46a",
         build: makePyramid,
         svg:
           '<polygon points="50,10 15,75 55,90" fill="#e9c46a"/>' +
@@ -338,6 +563,7 @@
     const allShapes = shapes2d.concat(shapes3d);
 
     // ================= عناصر صفحه =================
+    const stage = document.getElementById("stage");
     const shapesBox = document.getElementById("shapes");
     const infoBox = document.getElementById("info");
     const btn2d = document.getElementById("btn2d");
@@ -345,6 +571,8 @@
     const btnQuiz = document.getElementById("btnQuiz");
     const btnChallenge = document.getElementById("btnChallenge");
     const tabs = [btn2d, btn3d, btnQuiz, btnChallenge];
+    const dockInner = document.getElementById("dockInner");
+    const lens = document.getElementById("lens");
 
     let anim = null;
 
@@ -355,6 +583,12 @@
       }
     }
 
+    function moveLens() {
+      const t = tabs[currentTab];
+      lens.style.width = t.offsetWidth + "px";
+      lens.style.transform = "translateX(" + t.offsetLeft + "px)";
+    }
+
     function activate(btn) {
       tabs.forEach(function (t) { t.className = "tab"; });
       btn.className = "tab active";
@@ -363,30 +597,77 @@
     function clearAll() {
       stopLoop();
       infoBox.style.display = "none";
+      infoBox.innerHTML = "";
       shapesBox.innerHTML = "";
     }
 
+    function hexToRgb(h) {
+      const n = parseInt(h.slice(1), 16);
+      return [(n >> 16) & 255, (n >> 8) & 255, n & 255].join(",");
+    }
+
+    // ================= جدول اطلاعات =================
+    function rowIcon(label) {
+      if (label.indexOf("ضلع") > -1) return "📏";
+      if (label.indexOf("گوشه") > -1) return "📐";
+      if (label.indexOf("وجه") > -1) return "🔷";
+      if (label.indexOf("یال") > -1) return "➖";
+      if (label.indexOf("رأس") > -1) return "⚫";
+      return "✨";
+    }
+
     function showInfo(s) {
+      const rows = s.details.map(function (d) {
+        const i = d.indexOf(":");
+        return i > 0
+          ? { label: d.slice(0, i).trim(), value: d.slice(i + 1).trim(), cls: "" }
+          : { label: "ویژگی", value: d, cls: "" };
+      });
+      rows.push({ label: "در اطراف ما", value: s.example, cls: "example" });
+
+      let html =
+        '<div class="info-card glass" style="--rgb:' + hexToRgb(s.color) + '">' +
+        '<div class="info-head">' +
+        '<svg viewBox="0 0 100 100">' + s.svg + '</svg>' +
+        '<h3>' + s.name + '</h3></div><table>';
+
+      rows.forEach(function (r) {
+        const icon = r.cls === "example" ? "🌍" : rowIcon(r.label);
+        html +=
+          '<tr class="' + r.cls + '"><th><span class="ico">' + icon + '</span>' + r.label +
+          '</th><td>' + r.value + '</td></tr>';
+      });
+
+      html += "</table></div>";
       infoBox.style.display = "block";
-      infoBox.innerHTML =
-        "<b>" + s.name + "</b><br>" +
-        s.details.join("<br>") + "<br>" +
-        "در اطراف ما: " + s.example;
+      infoBox.innerHTML = html;
     }
 
     // ================= نمایش کارت‌های دوبعدی =================
     function showShapes(list) {
       clearAll();
 
+      const hint = document.createElement("div");
+      hint.className = "hint";
+      hint.textContent = "روی یک شکل بزن تا اطلاعاتش را ببینی 👇";
+      shapesBox.appendChild(hint);
+
+      const cards = [];
       list.forEach(function (s) {
         const card = document.createElement("div");
         card.className = "card";
+        card.style.setProperty("--rgb", hexToRgb(s.color));
         card.innerHTML =
-          '<svg viewBox="0 0 100 100" width="90" height="90">' + s.svg + '</svg>' +
+          '<svg viewBox="0 0 100 100" width="92" height="92">' + s.svg + '</svg>' +
           '<div>' + s.name + '</div>';
 
-        card.onclick = function () { showInfo(s); };
+        card.onclick = function () {
+          cards.forEach(function (c) { c.classList.remove("selected"); });
+          card.classList.add("selected");
+          showInfo(s);
+        };
 
+        cards.push(card);
         shapesBox.appendChild(card);
       });
     }
@@ -480,7 +761,7 @@
       clearAll();
 
       const box = document.createElement("div");
-      box.className = "panel";
+      box.className = "panel glass";
 
       canvas = document.createElement("canvas");
       canvas.width = 300;
@@ -509,6 +790,7 @@
       hint.textContent = "با انگشت روی شکل بکش تا بچرخد 👆";
 
       const chips = document.createElement("div");
+      chips.className = "chips";
       const chipEls = [];
 
       function selectShape(s) {
@@ -555,15 +837,16 @@
       let answered = false;
 
       const box = document.createElement("div");
-      box.className = "panel";
+      box.className = "panel glass";
       box.innerHTML =
-        '<svg viewBox="0 0 100 100" width="140" height="140">' + q.svg + '</svg>' +
+        '<svg class="q-svg" viewBox="0 0 100 100" width="140" height="140">' + q.svg + '</svg>' +
         '<h2>این چه شکلی است؟</h2>';
 
       const msg = document.createElement("div");
       msg.className = "msg";
 
       const scoreEl = document.createElement("div");
+      scoreEl.className = "score";
       scoreEl.textContent = "امتیاز: " + score + " از " + total;
 
       const next = document.createElement("button");
@@ -583,10 +866,10 @@
           if (o === q) {
             score++;
             msg.textContent = "آفرین! درسته 🎉";
-            b.style.backgroundColor = "#2a9d8f";
+            b.classList.add("right");
           } else {
             msg.textContent = "نه، جواب درست: " + q.name;
-            b.style.backgroundColor = "#e63946";
+            b.classList.add("wrong");
           }
           scoreEl.textContent = "امتیاز: " + score + " از " + total;
           next.style.display = "inline-block";
@@ -625,18 +908,25 @@
       shapesBox.innerHTML = "";
 
       const box = document.createElement("div");
-      box.className = "panel";
+      box.className = "panel glass";
 
       const title = document.createElement("h2");
       title.textContent = challenges[ci];
 
       const hint = document.createElement("div");
-      hint.textContent = "اگر خواستی از آن عکس بگیر 📷";
+      hint.className = "score";
+      hint.textContent = "اگر خواستی از آن عکس بگیر";
+
+      const camLabel = document.createElement("label");
+      camLabel.className = "action cam";
+      camLabel.textContent = "📷 گرفتن عکس";
 
       const input = document.createElement("input");
       input.type = "file";
       input.accept = "image/*";
       input.setAttribute("capture", "environment");
+      input.style.display = "none";
+      camLabel.appendChild(input);
 
       const img = document.createElement("img");
       img.className = "photo";
@@ -653,6 +943,7 @@
       msg.className = "msg";
 
       const starsEl = document.createElement("div");
+      starsEl.className = "score";
       starsEl.textContent = "ستاره‌ها: " + stars + " ⭐";
 
       const found = document.createElement("button");
@@ -666,7 +957,7 @@
       };
 
       const next = document.createElement("button");
-      next.className = "action";
+      next.className = "action ghost";
       next.textContent = "چالش بعدی ➡️";
       next.onclick = function () {
         ci = (ci + 1) % challenges.length;
@@ -675,7 +966,7 @@
 
       box.appendChild(title);
       box.appendChild(hint);
-      box.appendChild(input);
+      box.appendChild(camLabel);
       box.appendChild(img);
       box.appendChild(msg);
       box.appendChild(found);
@@ -689,15 +980,76 @@
       renderChallenge();
     }
 
-    // ================= اتصال دکمه‌ها =================
-    btn2d.onclick = function () { activate(btn2d); showShapes(shapes2d); };
-    btn3d.onclick = function () { activate(btn3d); show3d(); };
-    btnQuiz.onclick = function () { activate(btnQuiz); showQuiz(); };
-    btnChallenge.onclick = function () { activate(btnChallenge); showChallenge(); };
+    // ================= تغییر صفحه (مثل انتخاب‌گر دوربین) =================
+    const screens = [
+      function () { showShapes(shapes2d); },
+      show3d,
+      showQuiz,
+      showChallenge
+    ];
+    let currentTab = 0;
+
+    function setTab(i, animate) {
+      if (i < 0 || i >= tabs.length) return;
+      const dir = i > currentTab ? "from-left" : "from-right";
+      const changed = i !== currentTab;
+      currentTab = i;
+      activate(tabs[i]);
+      moveLens();
+      screens[i]();
+      window.scrollTo(0, 0);
+      if (animate && changed) {
+        stage.className = "";
+        void stage.offsetWidth;
+        stage.className = dir;
+      }
+    }
+
+    tabs.forEach(function (t, i) {
+      t.onclick = function () { setTab(i, true); };
+    });
+
+    // کشیدن انگشت روی نوار پایین یا صفحه، بخش بعدی/قبلی را باز می‌کند
+    let swipeStartX = null;
+    let swipeStartY = 0;
+    let justSwiped = false;
+
+    function swipeStart(e) {
+      if (e.target.closest && e.target.closest("canvas, input, label")) { swipeStartX = null; return; }
+      swipeStartX = e.clientX;
+      swipeStartY = e.clientY;
+    }
+
+    function swipeEnd(e) {
+      if (swipeStartX === null) return;
+      const dx = e.clientX - swipeStartX;
+      const dy = e.clientY - swipeStartY;
+      swipeStartX = null;
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+        justSwiped = true;
+        setTimeout(function () { justSwiped = false; }, 350);
+        setTab(currentTab + (dx > 0 ? 1 : -1), true);
+      }
+    }
+
+    dockInner.addEventListener("pointerdown", swipeStart);
+    dockInner.addEventListener("pointerup", swipeEnd);
+    document.body.addEventListener("pointerdown", function (e) {
+      if (!e.target.closest("#dockInner")) swipeStart(e);
+    });
+    document.body.addEventListener("pointerup", function (e) {
+      if (!e.target.closest("#dockInner")) swipeEnd(e);
+    });
+    document.body.addEventListener("pointercancel", function () { swipeStartX = null; });
+    dockInner.addEventListener("click", function (e) {
+      if (justSwiped) { e.stopPropagation(); e.preventDefault(); }
+    }, true);
+
+    window.addEventListener("resize", moveLens);
 
     // شروع برنامه با تب دوبعدی
-    activate(btn2d);
-    showShapes(shapes2d);
+    setTab(0, false);
+    setTimeout(moveLens, 100);
 
     // ================= ثبت Service Worker =================
     if ('serviceWorker' in navigator) {
