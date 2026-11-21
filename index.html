@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>شکل‌های هندسی</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      background-color: #eaf4ff;
+      padding: 15px;
+      margin: 0;
+    }
+    h1 { color: #1a5fb4; }
+    .tab {
+      font-size: 16px;
+      padding: 10px 14px;
+      margin: 4px;
+      border: none;
+      border-radius: 15px;
+      background-color: #ff9f1c;
+      color: white;
+    }
+    .tab.active { background-color: #d96b00; }
+    .shapes {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 15px;
+      padding: 10px;
+      width: 110px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    .card:active { transform: scale(0.95); }
+    #info {
+      background: white;
+      border-radius: 15px;
+      margin-top: 25px;
+      padding: 20px;
+      font-size: 20px;
+      line-height: 2;
+      display: none;
+    }
+    .panel {
+      background: white;
+      border-radius: 15px;
+      padding: 20px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    .opt {
+      display: block;
+      width: 80%;
+      margin: 10px auto;
+      padding: 12px;
+      font-size: 20px;
+      border: none;
+      border-radius: 12px;
+      background-color: #457b9d;
+      color: white;
+    }
+    .action {
+      font-size: 18px;
+      padding: 10px 20px;
+      margin: 8px;
+      border: none;
+      border-radius: 12px;
+      background-color: #2a9d8f;
+      color: white;
+    }
+    .chip {
+      font-size: 16px;
+      padding: 8px 12px;
+      margin: 4px;
+      border: none;
+      border-radius: 12px;
+      background-color: #a8c5dd;
+      color: #12344d;
+    }
+    .chip.active {
+      background-color: #1a5fb4;
+      color: white;
+    }
+    .msg { font-size: 20px; min-height: 30px; margin: 10px 0; }
+    .photo {
+      max-width: 100%;
+      border-radius: 12px;
+      margin-top: 10px;
+      display: none;
+    }
+    .view {
+      width: 100%;
+      max-width: 300px;
+      height: auto;
+      background: #f4f9ff;
+      border-radius: 15px;
+      touch-action: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>شکل‌های هندسی</h1>
+
+  <div>
+    <button class="tab" id="btn2d">دوبعدی</button>
+    <button class="tab" id="btn3d">سه‌بعدی</button>
+    <button class="tab" id="btnQuiz">آزمون</button>
+    <button class="tab" id="btnChallenge">چالش</button>
+  </div>
+
+  <div class="shapes" id="shapes"></div>
+  <div id="info"></div>
+
+  <script>
+    // ================= ساخت شکل‌های سه‌بعدی (مش) =================
+    function buildMesh(vertices, faces, color, edges) {
+      const mn = [1e9, 1e9, 1e9];
+      const mx = [-1e9, -1e9, -1e9];
+      vertices.forEach(function (p) {
+        for (let k = 0; k < 3; k++) {
+          if (p[k] < mn[k]) mn[k] = p[k];
+          if (p[k] > mx[k]) mx[k] = p[k];
+        }
+      });
+      const c = [(mn[0] + mx[0]) / 2, (mn[1] + mx[1]) / 2, (mn[2] + mx[2]) / 2];
+
+      const fs = faces.map(function (idx) {
+        let nx = 0, ny = 0, nz = 0, ax = 0, ay = 0, az = 0;
+        for (let i = 0; i < idx.length; i++) {
+          const p = vertices[idx[i]];
+          const q = vertices[idx[(i + 1) % idx.length]];
+          nx += (p[1] - q[1]) * (p[2] + q[2]);
+          ny += (p[2] - q[2]) * (p[0] + q[0]);
+          nz += (p[0] - q[0]) * (p[1] + q[1]);
+          ax += p[0]; ay += p[1]; az += p[2];
+        }
+        const len = Math.sqrt(nx * nx + ny * ny + nz * nz) || 1;
+        let n = [nx / len, ny / len, nz / len];
+        const m = idx.length;
+        const d = n[0] * (ax / m - c[0]) + n[1] * (ay / m - c[1]) + n[2] * (az / m - c[2]);
+        if (d < 0) n = [-n[0], -n[1], -n[2]];
+        return { idx: idx, n: n };
+      });
+
+      return { v: vertices, f: fs, color: color, edges: edges };
+    }
+
+    function makeCube() {
+      const v = [];
+      const s = 0.9;
+      [-1, 1].forEach(function (x) {
+        [-1, 1].forEach(function (y) {
+          [-1, 1].forEach(function (z) {
+            v.push([x * s, y * s, z * s]);
+          });
+        });
+      });
+      const f = [
+        [0, 1, 3, 2], [4, 5, 7, 6],
+        [0, 1, 5, 4], [2, 3, 7, 6],
+        [0, 2, 6, 4], [1, 3, 7, 5]
+      ];
+      return buildMesh(v, f, [42, 157, 143], true);
+    }
+
+    function makePyramid() {
+      const v = [
+        [-1, -1, -1], [1, -1, -1], [1, -1, 1], [-1, -1, 1], [0, 1.1, 0]
+      ];
+      const f = [
+        [0, 1, 2, 3],
+        [0, 1, 4], [1, 2, 4], [2, 3, 4], [3, 0, 4]
+      ];
+      return buildMesh(v, f, [233, 196, 106], true);
+    }
+
+    function makeCylinder() {
+      const seg = 28, r = 0.8;
+      const v = [];
+      for (let i = 0; i < seg; i++) {
+        const a = (i / seg) * Math.PI * 2;
+        v.push([r * Math.cos(a), 1, r * Math.sin(a)]);
+      }
+      for (let i = 0; i < seg; i++) {
+        const a = (i / seg) * Math.PI * 2;
+        v.push([r * Math.cos(a), -1, r * Math.sin(a)]);
+      }
+      const top = [], bottom = [], f = [];
+      for (let i = 0; i < seg; i++) {
+        top.push(i);
+        bottom.push(seg + i);
+        f.push([i, (i + 1) % seg, seg + (i + 1) % seg, seg + i]);
+      }
+      f.push(top);
+      f.push(bottom);
+      return buildMesh(v, f, [69, 123, 157], false);
+    }
+
+    function makeCone() {
+      const seg = 28, r = 0.95;
+      const v = [];
+      for (let i = 0; i < seg; i++) {
+        const a = (i / seg) * Math.PI * 2;
+        v.push([r * Math.cos(a), -1, r * Math.sin(a)]);
+      }
+      v.push([0, 1.1, 0]);
+      const base = [], f = [];
+      for (let i = 0; i < seg; i++) {
+        base.push(i);
+        f.push([i, (i + 1) % seg, seg]);
+      }
+      f.push(base);
+      return buildMesh(v, f, [244, 162, 97], false);
+    }
+
+    function makeSphere() {
+      const lat = 12, lon = 20, r = 1.1;
+      const v = [];
+      for (let i = 0; i <= lat; i++) {
+        const t = (i / lat) * Math.PI;
+        for (let j = 0; j < lon; j++) {
+          const p = (j / lon) * Math.PI * 2;
+          v.push([
+            r * Math.sin(t) * Math.cos(p),
+            r * Math.cos(t),
+            r * Math.sin(t) * Math.sin(p)
+          ]);
+        }
+      }
+      const f = [];
+      for (let i = 0; i < lat; i++) {
+        for (let j = 0; j < lon; j++) {
+          const a = i * lon + j;
+          const b = i * lon + (j + 1) % lon;
+          const c = (i + 1) * lon + (j + 1) % lon;
+          const d = (i + 1) * lon + j;
+          f.push([a, b, c, d]);
+        }
+      }
+      return buildMesh(v, f, [230, 57, 70], false);
+    }
+
+    // ================= شکل‌های دوبعدی =================
+    const shapes2d = [
+      {
+        name: "دایره",
+        svg: '<circle cx="50" cy="50" r="40" fill="#e63946"/>',
+        details: ["تعداد ضلع: ۰", "تعداد گوشه: ۰"],
+        example: "چرخ ماشین، ساعت دیواری"
+      },
+      {
+        name: "مربع",
+        svg: '<rect x="10" y="10" width="80" height="80" fill="#2a9d8f"/>',
+        details: ["تعداد ضلع: ۴ (مساوی)", "تعداد گوشه: ۴"],
+        example: "کاشی، پنجره"
+      },
+      {
+        name: "مستطیل",
+        svg: '<rect x="5" y="25" width="90" height="50" fill="#457b9d"/>',
+        details: ["تعداد ضلع: ۴ (دو‌به‌دو مساوی)", "تعداد گوشه: ۴"],
+        example: "در، موبایل، کتاب"
+      },
+      {
+        name: "مثلث",
+        svg: '<polygon points="50,10 90,90 10,90" fill="#f4a261"/>',
+        details: ["تعداد ضلع: ۳", "تعداد گوشه: ۳"],
+        example: "تابلوی خطر، تکه‌ی پیتزا"
+      }
+    ];
+
+    // ================= شکل‌های سه‌بعدی =================
+    const shapes3d = [
+      {
+        name: "مکعب",
+        build: makeCube,
+        svg:
+          '<rect x="15" y="35" width="50" height="50" fill="#2a9d8f"/>' +
+          '<polygon points="15,35 35,15 85,15 65,35" fill="#52b8ab"/>' +
+          '<polygon points="65,35 85,15 85,65 65,85" fill="#1f7a6f"/>',
+        details: ["تعداد وجه: ۶", "تعداد یال: ۱۲", "تعداد رأس: ۸"],
+        example: "تاس، جعبه‌ی کادو"
+      },
+      {
+        name: "کره",
+        build: makeSphere,
+        svg:
+          '<defs><radialGradient id="g1" cx="35%" cy="35%" r="70%">' +
+          '<stop offset="0%" stop-color="#ff9aa2"/>' +
+          '<stop offset="100%" stop-color="#c1121f"/>' +
+          '</radialGradient></defs>' +
+          '<circle cx="50" cy="50" r="40" fill="url(#g1)"/>',
+        details: ["یک سطح گرد", "تعداد یال: ۰", "تعداد رأس: ۰"],
+        example: "توپ فوتبال، کره‌ی زمین"
+      },
+      {
+        name: "استوانه",
+        build: makeCylinder,
+        svg:
+          '<ellipse cx="50" cy="80" rx="30" ry="10" fill="#457b9d"/>' +
+          '<rect x="20" y="25" width="60" height="55" fill="#457b9d"/>' +
+          '<ellipse cx="50" cy="25" rx="30" ry="10" fill="#7fb0d0"/>',
+        details: ["تعداد وجه: ۳ (دو تخت، یک گرد)", "تعداد رأس: ۰"],
+        example: "قوطی نوشابه، لوله"
+      },
+      {
+        name: "مخروط",
+        build: makeCone,
+        svg:
+          '<ellipse cx="50" cy="80" rx="30" ry="10" fill="#d9822b"/>' +
+          '<polygon points="50,10 20,80 80,80" fill="#f4a261"/>',
+        details: ["تعداد وجه: ۲ (یک تخت، یک گرد)", "تعداد رأس: ۱"],
+        example: "قیف بستنی، کلاه جشن"
+      },
+      {
+        name: "هرم",
+        build: makePyramid,
+        svg:
+          '<polygon points="50,10 15,75 55,90" fill="#e9c46a"/>' +
+          '<polygon points="50,10 55,90 85,70" fill="#c9a227"/>',
+        details: ["تعداد وجه: ۵", "تعداد یال: ۸", "تعداد رأس: ۵"],
+        example: "اهرام مصر، سقف برخی خانه‌ها"
+      }
+    ];
+
+    const allShapes = shapes2d.concat(shapes3d);
+
+    // ================= عناصر صفحه =================
+    const shapesBox = document.getElementById("shapes");
+    const infoBox = document.getElementById("info");
+    const btn2d = document.getElementById("btn2d");
+    const btn3d = document.getElementById("btn3d");
+    const btnQuiz = document.getElementById("btnQuiz");
+    const btnChallenge = document.getElementById("btnChallenge");
+    const tabs = [btn2d, btn3d, btnQuiz, btnChallenge];
+
+    let anim = null;
+
+    function stopLoop() {
+      if (anim) {
+        cancelAnimationFrame(anim);
+        anim = null;
+      }
+    }
+
+    function activate(btn) {
+      tabs.forEach(function (t) { t.className = "tab"; });
+      btn.className = "tab active";
+    }
+
+    function clearAll() {
+      stopLoop();
+      infoBox.style.display = "none";
+      shapesBox.innerHTML = "";
+    }
+
+    function showInfo(s) {
+      infoBox.style.display = "block";
+      infoBox.innerHTML =
+        "<b>" + s.name + "</b><br>" +
+        s.details.join("<br>") + "<br>" +
+        "در اطراف ما: " + s.example;
+    }
+
+    // ================= نمایش کارت‌های دوبعدی =================
+    function showShapes(list) {
+      clearAll();
+
+      list.forEach(function (s) {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML =
+          '<svg viewBox="0 0 100 100" width="90" height="90">' + s.svg + '</svg>' +
+          '<div>' + s.name + '</div>';
+
+        card.onclick = function () { showInfo(s); };
+
+        shapesBox.appendChild(card);
+      });
+    }
+
+    // ================= نمایشگر سه‌بعدی چرخان =================
+    let canvas = null;
+    let ctx = null;
+    let mesh = null;
+    let rx = -0.4;
+    let ry = 0.6;
+    let dragging = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    function rotate(p) {
+      const cy = Math.cos(ry), sy = Math.sin(ry);
+      const cx = Math.cos(rx), sx = Math.sin(rx);
+      const x1 = p[0] * cy + p[2] * sy;
+      const z1 = -p[0] * sy + p[2] * cy;
+      const y1 = p[1];
+      return [x1, y1 * cx - z1 * sx, y1 * sx + z1 * cx];
+    }
+
+    function draw() {
+      if (!ctx || !mesh) return;
+      const W = canvas.width;
+      const H = canvas.height;
+      const D = 4.5;
+      const F = D * 100;
+
+      const rv = mesh.v.map(rotate);
+      const vis = [];
+
+      mesh.f.forEach(function (f) {
+        const n = rotate(f.n);
+        let sx = 0, sy = 0, sz = 0;
+        f.idx.forEach(function (i) {
+          sx += rv[i][0];
+          sy += rv[i][1];
+          sz += rv[i][2];
+        });
+        const m = f.idx.length;
+        sx /= m; sy /= m; sz /= m;
+        const facing = n[0] * (0 - sx) + n[1] * (0 - sy) + n[2] * (D - sz);
+        if (facing > 0) vis.push({ f: f, n: n, z: sz });
+      });
+
+      vis.sort(function (a, b) { return a.z - b.z; });
+
+      ctx.clearRect(0, 0, W, H);
+
+      vis.forEach(function (o) {
+        const dot = o.n[0] * 0.4 + o.n[1] * 0.6 + o.n[2] * 0.7;
+        const shade = 0.35 + 0.65 * Math.max(0, dot);
+        const col =
+          "rgb(" +
+          Math.round(mesh.color[0] * shade) + "," +
+          Math.round(mesh.color[1] * shade) + "," +
+          Math.round(mesh.color[2] * shade) + ")";
+
+        ctx.beginPath();
+        o.f.idx.forEach(function (i, k) {
+          const p = rv[i];
+          const sc = F / (D - p[2]);
+          const x = W / 2 + p[0] * sc;
+          const y = H / 2 - p[1] * sc;
+          if (k === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.closePath();
+        ctx.fillStyle = col;
+        ctx.fill();
+        ctx.lineJoin = "round";
+        ctx.strokeStyle = mesh.edges ? "rgba(0,0,0,0.45)" : col;
+        ctx.lineWidth = mesh.edges ? 2 : 1;
+        ctx.stroke();
+      });
+    }
+
+    function startLoop() {
+      stopLoop();
+      function frame() {
+        if (!dragging) ry += 0.008;
+        draw();
+        anim = requestAnimationFrame(frame);
+      }
+      frame();
+    }
+
+    function show3d() {
+      clearAll();
+
+      const box = document.createElement("div");
+      box.className = "panel";
+
+      canvas = document.createElement("canvas");
+      canvas.width = 300;
+      canvas.height = 300;
+      canvas.className = "view";
+      ctx = canvas.getContext("2d");
+
+      canvas.onpointerdown = function (e) {
+        dragging = true;
+        lastX = e.clientX;
+        lastY = e.clientY;
+        canvas.setPointerCapture(e.pointerId);
+      };
+      canvas.onpointermove = function (e) {
+        if (!dragging) return;
+        ry += (e.clientX - lastX) * 0.01;
+        rx += (e.clientY - lastY) * 0.01;
+        lastX = e.clientX;
+        lastY = e.clientY;
+      };
+      canvas.onpointerup = function () { dragging = false; };
+      canvas.onpointercancel = function () { dragging = false; };
+
+      const hint = document.createElement("div");
+      hint.className = "msg";
+      hint.textContent = "با انگشت روی شکل بکش تا بچرخد 👆";
+
+      const chips = document.createElement("div");
+      const chipEls = [];
+
+      function selectShape(s) {
+        mesh = s.build();
+        showInfo(s);
+        chipEls.forEach(function (c, i) {
+          c.className = shapes3d[i] === s ? "chip active" : "chip";
+        });
+      }
+
+      shapes3d.forEach(function (s) {
+        const b = document.createElement("button");
+        b.className = "chip";
+        b.textContent = s.name;
+        b.onclick = function () { selectShape(s); };
+        chipEls.push(b);
+        chips.appendChild(b);
+      });
+
+      box.appendChild(canvas);
+      box.appendChild(hint);
+      box.appendChild(chips);
+      shapesBox.appendChild(box);
+
+      selectShape(shapes3d[0]);
+      startLoop();
+    }
+
+    // ================= آزمون =================
+    let score = 0;
+    let total = 0;
+
+    function nextQuestion() {
+      shapesBox.innerHTML = "";
+
+      const q = allShapes[Math.floor(Math.random() * allShapes.length)];
+      const options = [q];
+      while (options.length < 4) {
+        const r = allShapes[Math.floor(Math.random() * allShapes.length)];
+        if (options.indexOf(r) === -1) options.push(r);
+      }
+      options.sort(function () { return Math.random() - 0.5; });
+
+      let answered = false;
+
+      const box = document.createElement("div");
+      box.className = "panel";
+      box.innerHTML =
+        '<svg viewBox="0 0 100 100" width="140" height="140">' + q.svg + '</svg>' +
+        '<h2>این چه شکلی است؟</h2>';
+
+      const msg = document.createElement("div");
+      msg.className = "msg";
+
+      const scoreEl = document.createElement("div");
+      scoreEl.textContent = "امتیاز: " + score + " از " + total;
+
+      const next = document.createElement("button");
+      next.className = "action";
+      next.textContent = "سؤال بعدی ➡️";
+      next.style.display = "none";
+      next.onclick = nextQuestion;
+
+      options.forEach(function (o) {
+        const b = document.createElement("button");
+        b.className = "opt";
+        b.textContent = o.name;
+        b.onclick = function () {
+          if (answered) return;
+          answered = true;
+          total++;
+          if (o === q) {
+            score++;
+            msg.textContent = "آفرین! درسته 🎉";
+            b.style.backgroundColor = "#2a9d8f";
+          } else {
+            msg.textContent = "نه، جواب درست: " + q.name;
+            b.style.backgroundColor = "#e63946";
+          }
+          scoreEl.textContent = "امتیاز: " + score + " از " + total;
+          next.style.display = "inline-block";
+        };
+        box.appendChild(b);
+      });
+
+      box.appendChild(msg);
+      box.appendChild(scoreEl);
+      box.appendChild(next);
+      shapesBox.appendChild(box);
+    }
+
+    function showQuiz() {
+      clearAll();
+      score = 0;
+      total = 0;
+      nextQuestion();
+    }
+
+    // ================= چالش پیدا کردن شکل در محیط =================
+    const challenges = [
+      "یک چیز استوانه‌ای پیدا کن",
+      "یک چیز مستطیلی پیدا کن",
+      "یک چیز گرد (دایره) پیدا کن",
+      "یک چیز مکعبی پیدا کن",
+      "یک چیز مثلثی پیدا کن",
+      "یک چیز کروی (مثل توپ) پیدا کن",
+      "یک چیز مخروطی پیدا کن",
+      "یک چیز مربعی پیدا کن"
+    ];
+    let stars = 0;
+    let ci = 0;
+
+    function renderChallenge() {
+      shapesBox.innerHTML = "";
+
+      const box = document.createElement("div");
+      box.className = "panel";
+
+      const title = document.createElement("h2");
+      title.textContent = challenges[ci];
+
+      const hint = document.createElement("div");
+      hint.textContent = "اگر خواستی از آن عکس بگیر 📷";
+
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/*";
+      input.setAttribute("capture", "environment");
+
+      const img = document.createElement("img");
+      img.className = "photo";
+
+      input.onchange = function () {
+        const f = input.files[0];
+        if (f) {
+          img.src = URL.createObjectURL(f);
+          img.style.display = "block";
+        }
+      };
+
+      const msg = document.createElement("div");
+      msg.className = "msg";
+
+      const starsEl = document.createElement("div");
+      starsEl.textContent = "ستاره‌ها: " + stars + " ⭐";
+
+      const found = document.createElement("button");
+      found.className = "action";
+      found.textContent = "پیدا کردم ✅";
+      found.onclick = function () {
+        stars++;
+        msg.textContent = "آفرین! یک ستاره گرفتی ⭐";
+        starsEl.textContent = "ستاره‌ها: " + stars + " ⭐";
+        found.disabled = true;
+      };
+
+      const next = document.createElement("button");
+      next.className = "action";
+      next.textContent = "چالش بعدی ➡️";
+      next.onclick = function () {
+        ci = (ci + 1) % challenges.length;
+        renderChallenge();
+      };
+
+      box.appendChild(title);
+      box.appendChild(hint);
+      box.appendChild(input);
+      box.appendChild(img);
+      box.appendChild(msg);
+      box.appendChild(found);
+      box.appendChild(next);
+      box.appendChild(starsEl);
+      shapesBox.appendChild(box);
+    }
+
+    function showChallenge() {
+      clearAll();
+      renderChallenge();
+    }
+
+    // ================= اتصال دکمه‌ها =================
+    btn2d.onclick = function () { activate(btn2d); showShapes(shapes2d); };
+    btn3d.onclick = function () { activate(btn3d); show3d(); };
+    btnQuiz.onclick = function () { activate(btnQuiz); showQuiz(); };
+    btnChallenge.onclick = function () { activate(btnChallenge); showChallenge(); };
+
+    btn2d.onclick();
+  </script>
+</body>
+</html>
